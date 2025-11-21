@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Universal Perspective Engine: Literature, Music & Art Analysis</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Use Inter font family -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Body and Background --- */
+        @keyframes star-field-scroll {
+            from { background-position-y: 0; }
+            to { background-position-y: 2000px; }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Pitch Black Base */
+            /* "Cool Night" Gradient + Star Field Animation */
+            background-image: 
+                /* 1. Deep Space Gradient */
+                linear-gradient(to bottom, #020617 0%, #0f172a 60%, #0c4a6e 100%),
+                /* 2. Tiny Stars */
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.1) 1px, transparent 1px), 
+                /* 3. Horizon Glow */
+                radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.2) 0%, transparent 50%);
+            
+            background-size: auto, 100px 100px, 150px 150px, auto; /* Set star grid size */
+            background-attachment: fixed;
+            /* ANIMATION FIX: Slower scroll for subtlety */
+            animation: star-field-scroll 400s linear infinite; 
+
+            color: #f0f9ff; /* Sky 50 */
+            overflow-x: hidden;
+        }
+
+        /* Custom scrollbar - Cyan Thumb */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #06b6d4; /* Cyan 500 */
+            border-radius: 4px;
+            border: 2px solid #020617;
+        }
+
+        /* --- Custom Card Style and Hover Animation --- */
+        .perspective-card {
+            background-color: rgba(2, 6, 23, 0.75); /* Deep Navy with high transparency */
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(34, 211, 238, 0.15); /* Cyan border, subtle */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease-out; /* Add transition for hover effect */
+        }
+        /* 3D-Tilt Hover Effect */
+        .perspective-card-hover:hover {
+            transform: perspective(1000px) rotateX(1deg) rotateY(1deg) scale(1.01);
+            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.15), 0 0 50px rgba(0, 0, 0, 0.8);
+            border-color: rgba(34, 211, 238, 0.5);
+        }
+
+        /* Quote Card Specifics - Cyan Accent */
+        .quote-card {
+            background: linear-gradient(to right, rgba(8, 51, 68, 0.6), rgba(2, 6, 23, 0.8));
+            border-left: 4px solid #22d3ee; /* Cyan 400 */
+        }
+
+        /* Loading spinner - Cyan */
+        .loader {
+            border-top-color: #22d3ee; 
+            -webkit-animation: spin 1s ease-in-out infinite;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Autocomplete Dropdown */
+        .suggestions-list {
+            position: absolute;
+            background: #0f172a; 
+            border: 1px solid #1e293b;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.7);
+            margin-top: 4px;
+            color: #e0f2fe;
+        }
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-bottom: 1px solid #1e293b;
+        }
+        .suggestion-item:hover {
+            background-color: #0c4a6e; 
+            color: #22d3ee; 
+        }
+
+        /* Form Inputs - Deep Blue with Cyan Focus */
+        input, select, textarea {
+            background-color: rgba(15, 23, 42, 0.8) !important; 
+            border-color: #1e293b !important;
+            color: #f0f9ff !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #06b6d4 !important; 
+            box-shadow: 0 0 0 1px #06b6d4, 0 0 15px rgba(6, 182, 212, 0.2) !important;
+            outline: none;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #64748b;
+        }
+
+        /* Generate/Auth Buttons - The Horizon Glow (with Pulse) */
+        @keyframes button-pulse-effect {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.01); opacity: 0.95; }
+        }
+
+        #generate-perspective-btn, #guest-btn-primary, #close-modal-btn, #auth-submit-btn, #google-auth-btn {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            border: 1px solid #06b6d4;
+            transition: all 0.2s ease-in-out;
+            animation: button-pulse-effect 4s infinite ease-in-out;
+        }
+        #generate-perspective-btn:hover, #guest-btn-primary:hover, #close-modal-btn:hover, #auth-submit-btn:hover, #google-auth-btn:hover {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); 
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Action Buttons (Save/Read) */
+        .action-btn {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid #06b6d4;
+            color: #22d3ee;
+            transition: all 0.2s ease;
+        }
+        .action-btn:hover {
+            background: rgba(6, 182, 212, 0.2);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+        }
+        .action-btn.active {
+            background: rgba(6, 182, 212, 0.3);
+            color: #ffffff;
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
+        /* Plan Cards */
+        .plan-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1); 
+            border-color: #22d3ee;
+        }
+
+        /* Saved Analysis Card */
+        .saved-card {
+            transition: all 0.2s ease;
+            border: 1px solid rgba(34, 211, 238, 0.1);
+            cursor: pointer;
+        }
+        .saved-card:hover {
+            border-color: rgba(34, 211, 238, 0.5);
+            background-color: rgba(15, 23, 42, 0.9);
+            transform: scale(1.01);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+        }
+
+        /* Selected Media Card */
+        .media-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+        }
+
+        /* Modal Animation */
+        .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
+        .modal-leave { animation: modalFadeOut 0.2s ease-in forwards; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes modalFadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+
+        /* --- General Fade-In/Up Animation --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        /* --- Subtle Pulse for Output Area --- */
+        @keyframes pulse-cyan {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.1); }
+            50% { box-shadow: 0 0 20px 5px rgba(6, 182, 212, 0.15); }
+        }
+
+        .animate-pulse-cyan {
+            animation: pulse-cyan 3s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        /* --- Shooting Star Animation --- */
+        .shooting-star {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(34, 211, 238, 1);
+            animation: shoot 3s linear forwards;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
+            right: 0;
+        }
+
+        @keyframes shoot {
+            0% { transform: translate(0, 0) rotate(-45deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translate(-700px, 700px) rotate(-45deg); opacity: 0; }
+        }
+
+        /* --- Layout Transitions --- */
+        #app-container { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #profile-drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .drawer-open #app-container { transform: translateX(-300px); opacity: 0.5; pointer-events: none; }
+        .drawer-open #profile-drawer { transform: translateX(0); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .drawer-open #app-container { transform: translateX(-85vw); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white overflow-x-hidden">
+
+    <!-- =================== VIEW: AUTHENTICATION MODAL =================== -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm z-0" id="auth-modal-backdrop"></div>
+        <div class="perspective-card w-full max-w-md p-8 rounded-2xl relative z-10 modal-enter text-center">
+            <svg class="w-20 h-20 mx-auto text-cyan-400 mb-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            
+            <h1 id="auth-title" class="text-4xl font-extrabold text-white mb-3">Welcome Explorer</h1>
+            <p id="auth-subtitle" class="text-slate-400 mb-6 text-lg">Sign in or create an account to start analyzing.</p>
+
+            <form id="auth-form" class="space-y-4">
+                <input type="email" id="auth-email" placeholder="Email Address" required class="w-full p-3 rounded-lg border border-slate-700 transition">
+                <input type="password" id="auth-password" placeholder="Password (min 6 characters)" required class="w-full p-3 rounded-lg border border-slate-700 transition">
+                
+                <button type="submit" id="auth-submit-btn" class="w-full text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-150 ease-in-out text-lg flex items-center justify-center gap-3">
+                    <span id="auth-submit-text">Log In</span>
+                </button>
+                <p id="auth-error" class="text-red-400 text-sm hidden"></p>
+            </form>
+            
+            <div class="flex items-center my-6">
+                <div class="flex-grow border-t border-slate-700"></div>
+                <span class="flex-shrink mx-4 text-slate-500 text-sm">OR</span>
+                <div class="flex-grow border-t border-slate-700"></div>
+            </div>
+
+            <button id="google-auth-btn" class="w-full text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-150 ease-in-out text-lg flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-700 border border-slate-700">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google" class="w-5 h-5">
+                <span>Sign in with Google</span>
+            </button>
+            
+            <button id="toggle-auth-mode" class="mt-4 text-cyan-400 hover:text-cyan-300 text-sm underline transition">Need an account? Sign Up</button>
+        </div>
+    </div>
+
+    <!-- =================== UPGRADE TO PREMIUM MODAL =================== -->
+    <div id="premium-limit-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm z-0" id="limit-modal-backdrop"></div>
+        <div class="perspective-card w-full max-w-md p-8 rounded-2xl relative z-10 modal-enter text-center">
+            <svg class="w-16 h-16 mx-auto text-yellow-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.148A1.583 1.583 0 0112 1.5c.348 0 .684.072 1 .209l7.737 3.868a2 2 0 011.084 1.794v11.78a2 2 0 01-1.084 1.794l-7.737 3.868a1.583 1.583 0 01-2 0l-7.737-3.868A2 2 0 012 17.442V5.714a2 2 0 011.084-1.794l7.737-3.868z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21.5V12m0-8.5V12m0 0l-4 4m4-4l4 4m-4 4l-4-4m4 4l4-4"></path></svg>
+            <h1 class="text-3xl font-extrabold text-white mb-3">Limit Reached!</h1>
+            <p id="limit-message" class="text-slate-400 mb-6 text-lg">You've reached your 3 free perspectives. Unlock unlimited analysis power now!</p>
+
+            <button id="upgrade-redirect-btn" class="w-full text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-150 ease-in-out text-lg bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500">
+                Go Premium Now
+            </button>
+            <button id="close-limit-modal-btn" class="mt-4 text-slate-400 hover:text-white text-sm transition">Maybe later</button>
+        </div>
+    </div>
+
+    <!-- =================== MAIN APP WRAPPER =================== -->
+    <div id="main-app-wrapper" class="relative w-full min-h-screen">
+        
+        <!-- Profile Drawer -->
+        <div id="profile-drawer" class="fixed top-0 right-0 w-[85vw] max-w-[300px] h-full bg-slate-900/95 backdrop-blur-xl border-l border-slate-700 shadow-2xl z-50 transform translate-x-full flex flex-col transition-transform duration-300 ease-in-out">
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-white">Profile</h2>
+                <button id="close-drawer-btn" class="text-slate-400 hover:text-white p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 flex flex-col items-center border-b border-slate-800">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1 mb-3 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                    <img id="drawer-avatar" src="https://api.dicebear.com/9.x/micah/svg?seed=Cosmos" alt="Profile" class="w-full h-full rounded-full bg-slate-900">
+                </div>
+                <h3 id="drawer-name" class="text-lg font-bold text-white">User Name</h3>
+                <p id="drawer-email" class="text-sm text-slate-400 mb-1 truncate max-w-full px-4">user@email.com</p>
+                <p id="drawer-status" class="text-xs text-cyan-400 uppercase tracking-wider font-bold">Free Tier</p>
+                <!-- Container for detailed usage/expiry status -->
+                <div id="drawer-details" class="text-center"> 
+                    <p id="usage-status" class="text-xs text-slate-500 mt-2">Usage: 0/3 Free Perspectives</p>
+                    <p id="premium-expiry-alert" class="text-xs mt-2"></p>
+                </div>
+            </div>
+            <div class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button id="btn-show-premium-drawer" class="w-full text-left px-4 py-3 rounded-lg text-yellow-400 bg-yellow-950/20 hover:bg-yellow-950/40 transition flex items-center gap-3 font-semibold">
+                     <svg class="w-5 h-5 fill-yellow-400" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    Upgrade to Premium
+                </button>
+                <button id="btn-show-settings" class="w-full text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37-2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Settings
+                </button>
+                <button id="btn-show-saved" class="w-full text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Saved Analyses
+                </button>
+                <!-- NEW HELP BUTTON -->
+                <button id="btn-show-help" class="w-full text-left px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-cyan-300 transition flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.247a3.75 3.75 0 11.458 5.706M15 12a3 3 0 11-6 0 3 3 0 016 0zM5.757 5.757a16.963 16.963 0 0112.486 0M3 12c.571 5.378 4.767 9 9 9s8.429-3.622 9-9"></path></svg>
+                    Help & Support
+                </button>
+            </div>
+            <div class="p-6 border-t border-slate-800">
+                <button id="drawer-logout-btn" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div id="app-container" class="min-h-screen flex flex-col w-full">
+            
+            <!-- Navbar -->
+            <nav class="bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 md:px-6 py-4 flex justify-between items-center shadow-lg sticky top-0 z-40">
+                <div class="flex items-center gap-2">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <div class="flex items-center gap-4 md:gap-6">
+                    <button id="nav-premium-btn" class="group relative p-2 rounded-full transition hover:bg-slate-900/50" title="Get Premium">
+                        <div class="absolute inset-0 bg-yellow-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <svg class="w-6 h-6 md:w-7 md:h-7 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] transition transform group-hover:scale-110 group-hover:rotate-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </button>
+                    <button id="profile-btn" class="relative group" title="My Profile">
+                        <div class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-[2px] transition transform group-hover:scale-105 shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                            <img id="nav-avatar" src="https://api.dicebear.com/9.x/micah/svg?seed=Cosmos" alt="Avatar" class="w-full h-full rounded-full bg-slate-950">
+                        </div>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto p-4 md:p-8 w-full flex-grow">
+                
+                <!-- =================== VIEW: ANALYSIS ENGINE =================== -->
+                <div id="view-analysis">
+                    <header class="text-center mb-10 animate-fade-in-up">
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-2 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-cyan-500">The Universal Perspective Engine</h1>
+                        <p class="text-lg md:text-xl text-slate-400">Analyze the subtext of literature, music, and visual art.</p>
+                    </header>
+
+                    <section id="scientist-quote-container" class="mb-12 max-w-3xl mx-auto"></section>
+
+                    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <div class="lg:col-span-1">
+                            <!-- Input Card with 3D Hover -->
+                            <div class="perspective-card p-6 rounded-xl relative z-20 group hover:perspective-card-hover animate-fade-in-up" style="animation-delay: 0.1s;">
+                                <h2 class="text-2xl font-bold text-cyan-50 mb-4">Choose Your Focus</h2>
+                                <div class="relative flex mb-6 bg-slate-950/50 p-1 rounded-xl shadow-inner border border-slate-800">
+                                    <div id="tab-slider" class="absolute top-1 bottom-1 bg-cyan-500 rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-[0_0_15px_rgba(6,182,212,0.3)] z-0"></div>
+                                    <button id="mode-literature" data-mode="literature" class="relative z-10 flex-1 py-2 rounded-lg text-sm font-bold transition-colors duration-300 text-slate-900">Literature</button>
+                                    <button id="mode-music" data-mode="music" class="relative z-10 flex-1 py-2 rounded-lg text-sm font-bold transition-colors duration-300 text-slate-400 hover:text-slate-200">Music</button>
+                                    <button id="mode-art" data-mode="art" class="relative z-10 flex-1 py-2 rounded-lg text-sm font-bold transition-colors duration-300 text-slate-400 hover:text-slate-200">Visual Art</button>
+                                </div>
+
+                                <div id="input-container">
+                                    <!-- Literature Input with Autocomplete -->
+                                    <div id="literature-input-group" class="mb-6 relative">
+                                        <label for="book-title" class="block text-sm font-medium text-slate-300 mb-1">Book/Play Title and Author:</label>
+                                        <input type="text" id="book-title" autocomplete="off" placeholder="Start typing (e.g., Hamlet...)" class="w-full p-3 rounded-lg transition duration-150 ease-in-out">
+                                        <div id="book-suggestions" class="suggestions-list hidden"></div>
+                                    </div>
+                                    <!-- Music Input with Autocomplete -->
+                                    <div id="music-input-group" class="mb-6 hidden relative">
+                                        <label for="song-title" class="block text-sm font-medium text-slate-300 mb-1">Song/Album Title and Artist:</label>
+                                        <input type="text" id="song-title" autocomplete="off" placeholder="Start typing (e.g., Bohemian Rhapsody...)" class="w-full p-3 rounded-lg transition duration-150 ease-in-out">
+                                        <div id="music-suggestions" class="suggestions-list hidden"></div>
+                                    </div>
+                                    <!-- Visual Art Input with Autocomplete -->
+                                    <div id="art-input-group" class="mb-6 hidden relative">
+                                        <label for="art-title" class="block text-sm font-medium text-slate-300 mb-1">Artwork Title and Artist:</label>
+                                        <input type="text" id="art-title" autocomplete="off" placeholder="Start typing (e.g., Starry Night...)" class="w-full p-3 rounded-lg transition duration-150 ease-in-out">
+                                        <div id="art-suggestions" class="suggestions-list hidden"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected Media Display (Captures Data for Saving) -->
+                                <div id="selected-media-container" class="mb-8 hidden">
+                                    <label class="block text-sm font-medium text-cyan-400 mb-2">Selected Work:</label>
+                                    <div class="media-card rounded-lg p-4 flex items-start gap-4 shadow-lg">
+                                        <img id="media-cover" src="" alt="Cover" class="w-20 h-20 object-cover rounded-md bg-slate-900 shadow-md border border-slate-700 flex-shrink-0">
+                                        <div class="flex-1 min-w-0">
+                                            <h3 id="media-title" class="text-white font-bold text-sm truncate leading-tight">Title</h3>
+                                            <p id="media-subtitle" class="text-slate-400 text-xs mt-1 truncate">Subtitle</p>
+                                            <a id="media-link" href="#" target="_blank" class="inline-flex items-center mt-3 text-xs font-semibold text-cyan-400 hover:text-cyan-300 hover:underline transition">
+                                                <span id="media-link-text">View Resource</span>
+                                                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-8">
+                                    <label for="perspective-topic" class="block text-sm font-medium text-slate-300 mb-1">Focus Perspective (Critical Lens):</label>
+                                    <select id="perspective-topic" class="w-full p-3 rounded-lg transition duration-150 ease-in-out"></select>
+                                </div>
+
+                                <button id="generate-perspective-btn" class="w-full text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Generate Unique Perspective
+                                </button>
+                                <p id="error-message" class="text-red-400 text-sm mt-3 hidden text-center"></p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2">
+                            <!-- Output Card with Pulse and 3D Hover -->
+                            <div class="perspective-card p-6 rounded-xl h-full flex flex-col z-10 relative group hover:perspective-card-hover animate-fade-in-up animate-pulse-cyan" style="animation-delay: 0.2s;">
+                                <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+                                    <h2 class="text-2xl font-bold text-cyan-50">The Universal Perspective</h2>
+                                    <div class="flex gap-2">
+                                        <!-- Read Aloud Button -->
+                                        <button id="read-perspective-btn" class="hidden action-btn flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                                            <svg id="read-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                                            <span id="read-text">Read Aloud</span>
+                                        </button>
+                                        <!-- Save Button -->
+                                        <button id="save-perspective-btn" class="hidden action-btn flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="loading-indicator" class="text-center py-10 hidden">
+                                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-12 w-12 mb-4 mx-auto"></div>
+                                    <p class="text-cyan-400 animate-pulse">The Lens is focusing... Generating deep analysis.</p>
+                                </div>
+
+                                <div id="perspectiveOutput" class="flex-grow bg-slate-950/50 p-4 rounded-lg border border-slate-800 overflow-y-auto min-h-60 max-h-[80vh] text-slate-200 leading-relaxed whitespace-pre-wrap shadow-inner">
+                                    <p class="text-slate-400 italic">Welcome! Use the focus panel on the left to begin your exploration.</p>
+                                </div>
+
+                                <div id="citation-container" class="mt-4 p-3 bg-cyan-950/30 border border-cyan-900/50 rounded-lg hidden">
+                                    <p class="font-semibold text-cyan-200 mb-1">Sources Used for Grounding:</p>
+                                    <ul id="citation-list" class="list-disc list-inside text-sm text-cyan-300/80"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+
+                <!-- =================== VIEW: SAVED ANALYSES =================== -->
+                <div id="view-saved" class="hidden animate-fade-in">
+                    <header class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <h1 class="text-3xl font-bold text-white">Your Cosmic Collection</h1>
+                        <button id="back-to-app-saved" class="text-cyan-400 hover:text-cyan-300 underline">← Back to Engine</button>
+                    </header>
+                    
+                    <div id="saved-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Saved items will be injected here -->
+                        <div class="text-center col-span-full text-slate-500 py-12">Loading your collection...</div>
+                    </div>
+                </div>
+
+                <!-- =================== VIEW: PREMIUM PRICING (Existing) =================== -->
+                <div id="view-premium" class="hidden animate-fade-in">
+                    <header class="text-center mb-12 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <h1 class="text-4xl font-extrabold text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-500">Unlock the Full Power</h1>
+                        <p class="text-xl text-slate-400 max-w-2xl mx-auto">Get unlimited analyses, save your favorite perspectives to the cloud, and access exclusive academic lenses.</p>
+                        <button id="back-to-app" class="mt-6 text-cyan-400 hover:text-cyan-300 underline">← Back to Analysis</button>
+                    </header>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div class="plan-card bg-slate-900/80 rounded-2xl p-8 border border-slate-700 flex flex-col justify-between h-full relative overflow-hidden transition duration-300">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-400 uppercase tracking-wide">Monthly Plan</h3>
+                                <div class="my-4 flex items-baseline"><span class="text-5xl font-extrabold text-white">₹199</span><span class="text-slate-400 ml-1">/month</span></div>
+                                <ul class="space-y-4 mb-8 text-slate-300">
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Daily Limit: 5 Research Uses</li>
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Ad-free Experience</li>
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Basic Support</li>
+                                </ul>
+                            </div>
+                            <!-- Updated handler to pass plan details -->
+                            <button onclick="handlePayment('Monthly', 199, 30, 5)" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-700 transition duration-150 border border-slate-700">Choose Monthly</button>
+                        </div>
+                        <div class="plan-card bg-slate-900/90 rounded-2xl p-8 border-2 border-cyan-500 flex flex-col justify-between h-full relative shadow-[0_0_20px_rgba(6,182,212,0.15)] transition duration-300">
+                            <div class="absolute top-0 right-0 bg-cyan-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">BEST VALUE</div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-cyan-400 uppercase tracking-wide">Yearly Plan</h3>
+                                <div class="my-4 flex items-baseline"><span class="text-5xl font-extrabold text-white">₹1599</span><span class="text-slate-400 ml-1">/year</span></div>
+                                <p class="text-sm text-green-400 mb-6 font-semibold">Save ₹789 per year!</p>
+                                <ul class="space-y-4 mb-8 text-slate-200">
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Daily Limit: 10 Research Uses</li>
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Exclusive Academic Lenses</li>
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Priority Support</li>
+                                    <li class="flex items-center"><svg class="w-5 h-5 text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>PDF Export</li>
+                                </ul>
+                            </div>
+                             <!-- Updated handler to pass plan details -->
+                            <button onclick="handlePayment('Yearly', 1599, 365, 10)" class="w-full bg-gradient-to-r from-cyan-600 to-blue-700 text-white font-bold py-4 rounded-xl hover:from-cyan-500 hover:to-blue-600 transition duration-150 shadow-lg">Choose Yearly</button>
+                        </div>
+                    </div>
+                    <p class="text-center text-slate-500 text-sm mt-8">Secure payments powered by Razorpay. Cancel anytime.</p>
+                </div>
+
+                <!-- =================== VIEW: SETTINGS (Includes Transaction History) =================== -->
+                <div id="view-settings" class="hidden animate-fade-in">
+                    <header class="text-center mb-8 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <h1 class="text-3xl font-extrabold text-white mb-4">Account Settings</h1>
+                        <p class="text-lg text-slate-400 max-w-2xl mx-auto">Manage your profile information and payment history.</p>
+                        <button id="back-to-app-settings" class="mt-4 text-cyan-400 hover:text-cyan-300 underline">← Back to Engine</button>
+                    </header>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                        <!-- Profile Form -->
+                        <div class="perspective-card p-6 md:p-8 rounded-xl lg:order-1 order-2">
+                            <h2 class="text-xl font-bold text-cyan-50 mb-6 border-b border-slate-700 pb-3">Profile Details</h2>
+                            <form id="profile-settings-form" class="space-y-6">
+                                
+                                <div class="flex flex-col items-center border-b border-slate-700 pb-6">
+                                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1 mb-3 shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                                        <img id="settings-avatar" src="https://api.dicebear.com/9.x/micah/svg?seed=Cosmos" alt="Profile" class="w-full h-full rounded-full bg-slate-900 object-cover">
+                                    </div>
+                                    <p class="text-sm text-slate-400 italic">Avatar generated from your name/seed.</p>
+                                </div>
+
+                                <div>
+                                    <label for="settings-display-name" class="block text-sm font-medium text-slate-300 mb-1">Display Name:</label>
+                                    <input type="text" id="settings-display-name" placeholder="Your name" required class="w-full p-3 rounded-lg transition duration-150 ease-in-out">
+                                </div>
+
+                                <div>
+                                    <label for="settings-email" class="block text-sm font-medium text-slate-300 mb-1">Email (Read Only):</label>
+                                    <input type="email" id="settings-email" readonly class="w-full p-3 rounded-lg transition duration-150 ease-in-out bg-slate-800/50 cursor-not-allowed text-slate-500">
+                                </div>
+                                
+                                <button type="submit" id="save-profile-btn" class="w-full text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out bg-green-600 hover:bg-green-500 flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                                    <span id="save-profile-text">Save Changes</span>
+                                </button>
+                                <p id="settings-message" class="text-sm text-center hidden"></p>
+                            </form>
+                        </div>
+                        
+                        <!-- Transaction History -->
+                        <div class="perspective-card p-6 md:p-8 rounded-xl lg:order-2 order-1">
+                            <h2 class="text-xl font-bold text-cyan-50 mb-6 border-b border-slate-700 pb-3">Transaction History</h2>
+                            <div id="transaction-history" class="space-y-4">
+                                <div class="text-slate-500 text-center py-4">Loading history...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =================== VIEW: HELP & SUPPORT (NEW) =================== -->
+                <div id="view-help" class="hidden animate-fade-in">
+                    <header class="text-center mb-8 animate-fade-in-up" style="animation-delay: 0.3s;">
+                        <h1 class="text-3xl font-extrabold text-white mb-4">Help & Support Center</h1>
+                        <p class="text-lg text-slate-400 max-w-2xl mx-auto">Submit a support ticket and our cosmic team will assist you shortly.</p>
+                        <button id="back-to-app-help" class="mt-4 text-cyan-400 hover:text-cyan-300 underline">← Back to Engine</button>
+                    </header>
+
+                    <div class="perspective-card p-6 md:p-8 rounded-xl max-w-xl mx-auto">
+                        <form id="support-form" class="space-y-6">
+                             <div class="text-center text-slate-400 italic mb-4">
+                                Currently logged in as: <span id="support-user-display" class="font-bold text-cyan-400">Guest</span>
+                            </div>
+                            
+                            <div>
+                                <label for="support-subject" class="block text-sm font-medium text-slate-300 mb-1">Subject:</label>
+                                <input type="text" id="support-subject" placeholder="e.g., Daily limit not resetting" required class="w-full p-3 rounded-lg transition duration-150 ease-in-out">
+                            </div>
+
+                            <div>
+                                <label for="support-problem" class="block text-sm font-medium text-slate-300 mb-1">Problem Description (in depth):</label>
+                                <textarea id="support-problem" rows="5" placeholder="Describe the issue, including steps to reproduce it." required class="w-full p-3 rounded-lg transition duration-150 ease-in-out"></textarea>
+                            </div>
+                            
+                            <button type="submit" id="submit-ticket-btn" class="w-full text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-150 ease-in-out bg-cyan-600 hover:bg-cyan-500 flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.105A9.863 9.863 0 0112 4c4.97 0 9 3.582 9 8z"></path></svg>
+                                <span id="submit-ticket-text">Submit Ticket</span>
+                            </button>
+                            <p id="support-message" class="text-sm text-center hidden"></p>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- =================== SAVED DETAIL MODAL =================== -->
+    <div id="view-saved-detail-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm z-0" id="modal-backdrop"></div>
+        
+        <div class="perspective-card w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl relative z-10 modal-enter overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-900/90">
+                <div>
+                    <span id="modal-lens" class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/50 px-2 py-1 rounded mb-2 inline-block">LENS</span>
+                    <h2 id="modal-title" class="text-2xl font-bold text-white leading-tight">Title</h2>
+                    <p id="modal-date" class="text-sm text-slate-500 mt-1">Date</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="read-modal-btn" class="action-btn p-2 rounded-lg transition" title="Read Aloud">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                    </button>
+                    <!-- DELETE BUTTON -->
+                    <button id="delete-modal-btn" data-id="" class="action-btn p-2 rounded-lg transition bg-red-800/20 hover:bg-red-800/40 text-red-400" title="Delete Analysis">
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <button id="close-modal-btn" class="text-slate-400 hover:text-white p-2 rounded-lg transition bg-slate-800 hover:bg-slate-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-6 overflow-y-auto custom-scrollbar">
+                <!-- Media Card inside Modal -->
+                <div id="modal-media-container" class="mb-6 hidden">
+                    <div class="media-card rounded-lg p-4 flex flex-col sm:flex-row items-start gap-4 shadow-lg bg-slate-800/50">
+                        <img id="modal-media-cover" src="" alt="Cover" class="w-24 h-32 object-cover rounded-md bg-slate-900 shadow-md border border-slate-700 flex-shrink-0 mx-auto sm:mx-0">
+                        <div class="flex-1 w-full text-center sm:text-left">
+                            <h3 id="modal-media-title" class="text-white font-bold text-lg leading-tight">Media Title</h3>
+                            <p id="modal-media-subtitle" class="text-slate-400 text-sm mt-1">Subtitle</p>
+                            <a id="modal-media-link" href="#" target="_blank" class="inline-flex items-center mt-4 px-4 py-2 bg-cyan-900/30 text-cyan-400 rounded-lg hover:bg-cyan-900/50 transition text-sm font-semibold border border-cyan-500/30">
+                                <span id="modal-media-link-text">View Resource</span>
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Text -->
+                <div id="modal-text" class="text-slate-300 leading-relaxed whitespace-pre-wrap text-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, updateProfile, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, onSnapshot, serverTimestamp, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        setLogLevel('Debug');
+
+        // --- FIREBASE CONFIG (Updated with user's provided key) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCu5SmxgZ1svXvAvac-Q6h-oNt6z21_Lho",
+            authDomain: "perspective-engine-51825.firebaseapp.com",
+            projectId: "perspective-engine-51825",
+            storageBucket: "perspective-engine-51825.firebasestorage.app",
+            messagingSenderId: "857101614080",
+            appId: "1:857101614080:web:604b0a62f067716caf2ce5"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); 
+        const db = getFirestore(app);
+        const appId = firebaseConfig.projectId; 
+        
+        // --- CONSTANTS ---
+        const MAX_FREE_USES = 3;
+        const DAILY_LIMITS = { Monthly: 5, Yearly: 10 };
+        const PLAN_DURATIONS = { Monthly: 30, Yearly: 365 }; // Days
+        
+        // <<=== IMPORTANT: REPLACE THIS WITH YOUR LIVE RAZORPAY KEY ID ===>>
+        const RAZORPAY_KEY_ID = "rzp_test_YourKeyIdHere"; 
+
+        // --- Global State ---
+        let currentUser = null;
+        let userData = { 
+            perspective_count: 0, 
+            is_premium: false, 
+            plan_type: 'Free',
+            daily_limit: 0,
+            daily_research_count: 0, 
+            last_reset_date: null, // Firestore Timestamp
+            expiry_date: null // Firestore Timestamp
+        };
+        let currentAnalysis = null;
+        let currentMedia = null; 
+        let currentUtterance = null;
+        let isLoginMode = true;
+
+        // ==========================================
+        //         DOM ELEMENTS
+        // ==========================================
+
+        // General
+        const mainAppWrapper = document.getElementById('main-app-wrapper');
+        const appContainer = document.getElementById('app-container');
+        const profileBtn = document.getElementById('profile-btn');
+        const navAvatar = document.getElementById('nav-avatar');
+        const drawerAvatar = document.getElementById('drawer-avatar');
+        const drawerName = document.getElementById('drawer-name');
+        const drawerEmail = document.getElementById('drawer-email');
+        const drawerStatus = document.getElementById('drawer-status');
+        const usageStatus = document.getElementById('usage-status');
+        const premiumExpiryAlert = document.getElementById('premium-expiry-alert');
+        const profileDrawer = document.getElementById('profile-drawer');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
+        const btnShowPremiumDrawer = document.getElementById('btn-show-premium-drawer');
+        const viewAnalysis = document.getElementById('view-analysis');
+        const viewSaved = document.getElementById('view-saved');
+        const viewPremium = document.getElementById('view-premium');
+        const navPremiumBtn = document.getElementById('nav-premium-btn');
+        const backToAppBtn = document.getElementById('back-to-app');
+        const btnShowHelp = document.getElementById('btn-show-help'); // NEW
+        const viewHelp = document.getElementById('view-help'); // NEW
+        const supportUserDisplay = document.getElementById('support-user-display'); // NEW
+
+        // Generation Controls
+        const generateBtn = document.getElementById('generate-perspective-btn');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const perspectiveOutput = document.getElementById('perspectiveOutput');
+        const errorMessage = document.getElementById('error-message');
+        const savePerspectiveBtn = document.getElementById('save-perspective-btn');
+        const readPerspectiveBtn = document.getElementById('read-perspective-btn');
+        const readIcon = document.getElementById('read-icon');
+        const readText = document.getElementById('read-text');
+
+        // Input & Autocomplete
+        const bookTitleInput = document.getElementById('book-title');
+        const musicTitleInput = document.getElementById('song-title');
+        const artTitleInput = document.getElementById('art-title');
+        const bookSuggestions = document.getElementById('book-suggestions');
+        const musicSuggestions = document.getElementById('music-suggestions');
+        const artSuggestions = document.getElementById('art-suggestions');
+        const litGroup = document.getElementById('literature-input-group');
+        const musGroup = document.getElementById('music-input-group');
+        const artGroup = document.getElementById('art-input-group');
+        const perspectiveTopic = document.getElementById('perspective-topic');
+        
+        // Authentication Modal
+        const authModal = document.getElementById('auth-modal');
+        const authTitle = document.getElementById('auth-title');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const authForm = document.getElementById('auth-form');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const authSubmitText = document.getElementById('auth-submit-text');
+        const authError = document.getElementById('auth-error');
+        const toggleAuthModeBtn = document.getElementById('toggle-auth-mode');
+        const googleAuthBtn = document.getElementById('google-auth-btn');
+        
+        // Limit Modal
+        const limitModal = document.getElementById('premium-limit-modal');
+        const limitModalBackdrop = document.getElementById('limit-modal-backdrop');
+        const closeLimitModalBtn = document.getElementById('close-limit-modal-btn');
+        const upgradeRedirectBtn = document.getElementById('upgrade-redirect-btn');
+        const limitMessage = document.getElementById('limit-message');
+
+        // Saved Detail Modal
+        const modal = document.getElementById('view-saved-detail-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const readModalBtn = document.getElementById('read-modal-btn');
+        const readModalBtnSvg = readModalBtn.querySelector('svg');
+        const deleteModalBtn = document.getElementById('delete-modal-btn');
+        const modalLens = document.getElementById('modal-lens');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDate = document.getElementById('modal-date');
+        const modalText = document.getElementById('modal-text');
+        const modalMediaContainer = document.getElementById('modal-media-container');
+
+        // Settings View Elements
+        const viewSettings = document.getElementById('view-settings');
+        const btnShowSettings = document.getElementById('btn-show-settings');
+        const backToAppSettings = document.getElementById('back-to-app-settings');
+        const settingsAvatar = document.getElementById('settings-avatar');
+        const settingsDisplayNameInput = document.getElementById('settings-display-name');
+        const settingsEmailInput = document.getElementById('settings-email');
+        const profileSettingsForm = document.getElementById('profile-settings-form');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const saveProfileText = document.getElementById('save-profile-text');
+        const settingsMessage = document.getElementById('settings-message');
+        const transactionHistoryContainer = document.getElementById('transaction-history'); // NEW
+
+        // Help View Elements
+        const supportForm = document.getElementById('support-form');
+        const supportSubjectInput = document.getElementById('support-subject');
+        const supportProblemTextarea = document.getElementById('support-problem');
+        const submitTicketBtn = document.getElementById('submit-ticket-btn');
+        const submitTicketText = document.getElementById('submit-ticket-text');
+        const supportMessage = document.getElementById('support-message');
+        const backToAppHelp = document.getElementById('back-to-app-help');
+
+
+        // --- FIREBASE HELPER FUNCTIONS ---
+
+        /** Fetches or initializes user usage data from Firestore. */
+        async function getOrCreateUserData(user) {
+            const usageDocRef = doc(db, `artifacts/${appId}/users/${user.uid}/usage/limits`);
+            try {
+                const docSnap = await getDoc(usageDocRef);
+                let initialData;
+                
+                if (docSnap.exists()) {
+                    initialData = docSnap.data();
+                } else {
+                    initialData = { 
+                        perspective_count: 0, 
+                        is_premium: false,
+                        plan_type: 'Free',
+                        daily_limit: 0,
+                        daily_research_count: 0,
+                        last_reset_date: serverTimestamp(),
+                        expiry_date: null
+                    };
+                    await setDoc(usageDocRef, initialData);
+                }
+
+                userData = { ...initialData };
+                
+                // --- Daily Reset Logic ---
+                const now = new Date();
+                const lastResetTime = userData.last_reset_date ? userData.last_reset_date.toDate().getTime() : 0;
+                
+                // Reset if 24 hours have passed since last reset OR if we switched to a new day after an expired plan
+                if (userData.is_premium) {
+                    const twentyFourHours = 24 * 60 * 60 * 1000;
+                    if (now.getTime() - lastResetTime >= twentyFourHours) {
+                         // Reset premium daily count
+                        await updateDoc(usageDocRef, {
+                            daily_research_count: 0,
+                            last_reset_date: serverTimestamp()
+                        });
+                        userData.daily_research_count = 0;
+                        userData.last_reset_date = { toDate: () => now }; // Update local mock
+                        console.log("Daily premium limit reset.");
+                    }
+                }
+
+                // Check for expiry (only if previously premium)
+                if (userData.expiry_date && userData.is_premium) {
+                    const expiryTime = userData.expiry_date.toDate().getTime();
+                    if (now.getTime() >= expiryTime) {
+                         // Plan expired - Downgrade in Firestore
+                         await updateDoc(usageDocRef, {
+                            is_premium: false,
+                            plan_type: 'Free',
+                            daily_limit: 0
+                        });
+                        userData.is_premium = false;
+                        userData.plan_type = 'Free';
+                        userData.daily_limit = 0;
+                        console.log("Premium plan expired and user downgraded.");
+                    }
+                }
+
+                updateProfileUI();
+            } catch (error) {
+                console.error("Error fetching/creating user data:", error);
+                userData = { perspective_count: 0, is_premium: false, daily_limit: 0, daily_research_count: 0 }; 
+                updateProfileUI();
+            }
+        }
+
+        /** Increments the usage count in Firestore. */
+        async function incrementUsage() {
+            if (!currentUser) return; // Only track for authenticated users
+            if (!userData.is_premium && userData.perspective_count < MAX_FREE_USES) {
+                // Free Tier increment
+                const newCount = userData.perspective_count + 1;
+                const usageDocRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/usage/limits`);
+                try {
+                    await updateDoc(usageDocRef, { perspective_count: newCount });
+                    userData.perspective_count = newCount;
+                } catch (error) { console.error("Error incrementing free usage:", error); }
+            } else if (userData.is_premium && userData.daily_research_count < userData.daily_limit) {
+                // Premium Daily increment
+                const newDailyCount = userData.daily_research_count + 1;
+                const usageDocRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/usage/limits`);
+                try {
+                    await updateDoc(usageDocRef, { daily_research_count: newDailyCount });
+                    userData.daily_research_count = newDailyCount;
+                } catch (error) { console.error("Error incrementing premium usage:", error); }
+            }
+            updateProfileUI();
+        }
+
+        // --- UI UPDATE & NAVIGATION ---
+
+        function updateProfileUI() {
+            const avatarSeed = currentUser ? (currentUser.displayName || currentUser.email.split('@')[0] || currentUser.uid) : "GuestExplorer";
+            const photoURL = currentUser ? (currentUser.photoURL || `https://api.dicebear.com/9.x/micah/svg?seed=${avatarSeed}`) : `https://api.dicebear.com/9.x/micah/svg?seed=${avatarSeed}`;
+            
+            navAvatar.src = drawerAvatar.src = settingsAvatar.src = photoURL;
+            
+            const displayName = currentUser ? (currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : "Explorer")) : "Guest Explorer";
+            const email = currentUser ? (currentUser.email || "N/A") : "Sign in to save";
+
+            drawerName.textContent = displayName;
+            drawerEmail.textContent = email;
+            settingsDisplayNameInput.value = currentUser?.displayName || '';
+            settingsEmailInput.value = currentUser?.email || 'N/A';
+            supportUserDisplay.textContent = currentUser ? `${displayName} (${email})` : "Guest (Not logged in)";
+
+
+            // --- Status and Usage Logic ---
+            let statusText = "UNAUTHENTICATED";
+            let usageText = "Log in to use analysis engine.";
+            premiumExpiryAlert.innerHTML = '';
+            premiumExpiryAlert.classList.remove('animate-pulse');
+
+            if (currentUser) {
+                if (userData.is_premium) {
+                    statusText = "PREMIUM MEMBER";
+                    drawerStatus.classList.replace('text-cyan-400', 'text-yellow-400');
+                    btnShowPremiumDrawer.classList.add('hidden');
+                    
+                    // Premium Status Display
+                    const daysLeft = Math.ceil((userData.expiry_date.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                    
+                    usageText = `Daily uses: ${userData.daily_research_count}/${userData.daily_limit}`;
+                    
+                    if (daysLeft <= 2 && daysLeft > 0) {
+                        premiumExpiryAlert.innerHTML = `<p class="text-amber-400 font-bold animate-pulse">!! Expiring in ${daysLeft} days !!</p>`;
+                        premiumExpiryAlert.classList.remove('hidden');
+                    } else if (daysLeft <= 0) {
+                        premiumExpiryAlert.innerHTML = `<p class="text-red-500 font-bold">Plan Expired! Please renew.</p>`;
+                        premiumExpiryAlert.classList.remove('hidden');
+                    } else {
+                        premiumExpiryAlert.innerHTML = `<p class="text-slate-400">Expires in ${daysLeft} days.</p>`;
+                        premiumExpiryAlert.classList.remove('hidden');
+                    }
+
+                } else {
+                    // Free Tier Status
+                    statusText = "FREE TIER";
+                    drawerStatus.classList.replace('text-yellow-400', 'text-cyan-400');
+                    btnShowPremiumDrawer.classList.remove('hidden');
+
+                    if (userData.perspective_count >= MAX_FREE_USES) {
+                        usageText = `Usage limit reached (${MAX_FREE_USES}/${MAX_FREE_USES}). Upgrade!`;
+                    } else {
+                        usageText = `Uses left: ${MAX_FREE_USES - userData.perspective_count} Free Perspectives`;
+                    }
+                    premiumExpiryAlert.classList.add('hidden');
+                }
+            }
+
+            drawerStatus.textContent = statusText;
+            usageStatus.textContent = usageText;
+        }
+
+        function showView(viewId) {
+            [viewAnalysis, viewSaved, viewPremium, viewSettings, viewHelp].forEach(view => {
+                view.classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+
+            // Load dynamic data for specific views
+            if (viewId === 'view-settings' && currentUser) {
+                loadTransactionHistory();
+            } else if (viewId === 'view-help') {
+                updateProfileUI(); // Update user details in the support form display
+            }
+        }
+
+        function openDrawer() { 
+            document.body.classList.add('drawer-open'); 
+            updateProfileUI(); 
+        }
+        function closeDrawer() { document.body.classList.remove('drawer-open'); }
+
+        // --- AUTH MODAL LOGIC (Unchanged) ---
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            authTitle.textContent = isLoginMode ? "Welcome Explorer" : "Create Account";
+            authSubtitle.textContent = isLoginMode ? "Sign in to start analyzing." : "Get 3 free perspectives instantly!";
+            authSubmitText.textContent = isLoginMode ? "Log In" : "Sign Up";
+            toggleAuthModeBtn.textContent = isLoginMode ? "Need an account? Sign Up" : "Already have an account? Log In";
+            authError.classList.add('hidden');
+        }
+
+        async function handleEmailPasswordAuth(e) {
+            e.preventDefault();
+            authError.classList.add('hidden');
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            authSubmitBtn.disabled = true;
+            authSubmitText.textContent = isLoginMode ? "Logging in..." : "Signing up...";
+            await setPersistence(auth, browserLocalPersistence);
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                }
+                authModal.classList.add('hidden');
+            } catch (error) {
+                console.error("Auth Error:", error);
+                let message = "An unknown error occurred.";
+                if (error.code === 'auth/wrong-password') message = "Invalid email or password.";
+                else if (error.code === 'auth/user-not-found') message = "User not found. Please sign up.";
+                else if (error.code === 'auth/email-already-in-use') message = "This email is already in use. Please log in.";
+                else if (error.code === 'auth/weak-password') message = "Password must be at least 6 characters.";
+                else if (error.code) message = `Error: ${error.message.split('(')[0]}`;
+
+                authError.textContent = message;
+                authError.classList.remove('hidden');
+            } finally {
+                authSubmitBtn.disabled = false;
+                authSubmitText.textContent = isLoginMode ? "Log In" : "Sign Up";
+            }
+        }
+
+        async function handleGoogleAuth() {
+            const provider = new GoogleAuthProvider();
+            await setPersistence(auth, browserLocalPersistence);
+
+            try {
+                await signInWithPopup(auth, provider);
+                authModal.classList.add('hidden');
+            } catch (error) {
+                console.error("Google Auth Error:", error);
+                authError.textContent = `Google Sign-in failed: ${error.message.split('(')[0]}`;
+                authError.classList.remove('hidden');
+            }
+        }
+
+        // --- PAYMENT & TRANSACTION LOGIC (NEW) ---
+
+        window.handlePayment = async (plan, amt, durationDays, dailyLimit) => {
+            if (!currentUser) { 
+                alert("Please log in to make a payment.");
+                authModal.classList.remove('hidden'); 
+                return;
+            }
+            
+            // --- 1. Determine Plan Dates ---
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + durationDays);
+            
+            // Generate a random order ID for the simulation
+            const orderId = 'order_' + Math.random().toString(36).substr(2, 9);
+            
+            // --- 2. Razorpay Options ---
+            const options = {
+                key: RAZORPAY_KEY_ID, // <<=== YOUR KEY MUST BE HERE
+                amount: amt * 100, // Amount is in currency subunits (paise)
+                currency: "INR",
+                name: "Universal Perspective Engine",
+                description: `${plan} Plan Subscription`,
+                order_id: orderId,
+                image: navAvatar.src,
+                
+                handler: async function (response) {
+                    // --- SUCCESS HANDLER ---
+                    const paymentId = response.razorpay_payment_id || 'MOCK_ID_' + Date.now();
+
+                    // 3. Record Transaction
+                    const transactionRef = collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`);
+                    await addDoc(transactionRef, {
+                        plan_type: plan,
+                        amount: amt,
+                        currency: 'INR',
+                        razorpay_payment_id: paymentId,
+                        payment_date: serverTimestamp(),
+                        expiry_date: expiryDate
+                    });
+
+                    // 4. Update User Limits/Premium Status
+                    const limitsRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/usage/limits`);
+                    await updateDoc(limitsRef, { 
+                        is_premium: true,
+                        plan_type: plan,
+                        daily_limit: dailyLimit,
+                        expiry_date: expiryDate,
+                        daily_research_count: 0, // Reset daily count upon payment
+                        last_reset_date: serverTimestamp()
+                    });
+
+                    // 5. Update Local State and UI
+                    userData.is_premium = true;
+                    userData.plan_type = plan;
+                    userData.daily_limit = dailyLimit;
+                    userData.daily_research_count = 0;
+                    userData.expiry_date = { toDate: () => expiryDate }; // Mock Firestore Timestamp structure
+                    
+                    alert(`Payment successful! Welcome to ${plan} Premium. Daily limit: ${dailyLimit}.`);
+                    updateProfileUI();
+                    showView('view-analysis');
+                },
+                prefill: {
+                    name: currentUser.displayName,
+                    email: currentUser.email,
+                },
+                notes: {
+                    'plan': plan,
+                    'user_id': currentUser.uid
+                },
+                theme: { color: '#06b6d4' }
+            };
+            
+            // 6. Initialize and Open Razorpay
+            const rzp1 = new Razorpay(options);
+
+            rzp1.on('payment.failed', function (response) {
+                // This is how you handle payment failure in a real app
+                console.error("Razorpay Payment Failed:", response.error.code, response.error.description);
+                alert(`Payment failed: ${response.error.description}`);
+            });
+
+            // Open the modal
+            rzp1.open();
+        };
+
+        // --- TRANSACTION HISTORY (NEW) ---
+        async function loadTransactionHistory() {
+            transactionHistoryContainer.innerHTML = '<div class="text-slate-500 text-center py-4">Loading history...</div>';
+            if (!currentUser) {
+                transactionHistoryContainer.innerHTML = '<div class="text-red-400 text-center py-4">Must be logged in to view history.</div>';
+                return;
+            }
+            
+            const q = query(collection(db, `artifacts/${appId}/users/${currentUser.uid}/transactions`), orderBy("payment_date", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    transactionHistoryContainer.innerHTML = '<div class="text-slate-500 text-center py-4">No transactions found.</div>';
+                    return;
+                }
+                
+                transactionHistoryContainer.innerHTML = '';
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const paymentDate = data.payment_date?.toDate ? data.payment_date.toDate().toLocaleDateString() : 'N/A';
+                    const expiryDate = data.expiry_date?.toDate ? data.expiry_date.toDate().toLocaleDateString() : 'N/A';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'perspective-card p-4 rounded-lg border-l-4 border-cyan-500 shadow-md';
+                    card.innerHTML = `
+                        <p class="text-sm font-bold text-white">${data.plan_type} Plan - ₹${data.amount}</p>
+                        <p class="text-xs text-slate-400 mt-1">Date: ${paymentDate} (Expires: ${expiryDate})</p>
+                        <p class="text-xs text-slate-500">ID: ${data.razorpay_payment_id || data.razorpay_order_id}</p>
+                    `;
+                    transactionHistoryContainer.appendChild(card);
+                });
+            }, (error) => {
+                console.error("Error loading transactions:", error);
+                transactionHistoryContainer.innerHTML = '<div class="text-red-400 text-center py-4">Error loading history.</div>';
+            });
+        }
+        
+        // --- HELP & SUPPORT LOGIC (NEW) ---
+        supportForm.addEventListener('submit', handleSupportTicket);
+        
+        async function handleSupportTicket(e) {
+            e.preventDefault();
+            supportMessage.classList.add('hidden');
+            
+            const subject = supportSubjectInput.value.trim();
+            const problem = supportProblemTextarea.value.trim();
+            
+            submitTicketBtn.disabled = true;
+            submitTicketText.textContent = "Submitting...";
+
+            const ticket = {
+                subject,
+                problem,
+                userId: currentUser?.uid || 'guest',
+                userEmail: currentUser?.email || 'N/A',
+                userName: currentUser?.displayName || 'Guest',
+                status: 'Open',
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                const supportRef = collection(db, `artifacts/${appId}/support_tickets`);
+                await addDoc(supportRef, ticket);
+                
+                supportMessage.textContent = "Ticket submitted successfully! We'll be in touch.";
+                supportMessage.classList.remove('hidden', 'text-red-400');
+                supportMessage.classList.add('text-green-400');
+                
+                supportForm.reset();
+            } catch (error) {
+                console.error("Support submission error:", error);
+                supportMessage.textContent = `Submission failed: ${error.message.split('(')[0]}`;
+                supportMessage.classList.remove('hidden', 'text-green-400');
+                supportMessage.classList.add('text-red-400');
+            } finally {
+                submitTicketBtn.disabled = false;
+                submitTicketText.textContent = "Submit Ticket";
+                setTimeout(() => supportMessage.classList.add('hidden'), 5000);
+            }
+        }
+
+
+        // --- CORE APPLICATION LOGIC ---
+
+        // 1. Auth State Observer 
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await getOrCreateUserData(user); 
+            } else {
+                currentUser = null;
+                userData = { perspective_count: 0, is_premium: false, daily_limit: 0, daily_research_count: 0 };
+            }
+            updateProfileUI();
+        });
+
+        // 2. Generate Perspective Button Handler
+        generateBtn.addEventListener('click', async () => {
+            // 1. Check Auth (Block unauthenticated users)
+            if (!currentUser) {
+                toggleAuthMode();
+                authModal.classList.remove('hidden');
+                return;
+            }
+
+            // 2. Check Usage Limit (Free or Daily Premium)
+            let isLimitReached = false;
+            let limitTypeText = "free";
+
+            if (userData.is_premium) {
+                limitTypeText = "daily";
+                if (userData.daily_research_count >= userData.daily_limit) {
+                    isLimitReached = true;
+                }
+            } else {
+                if (userData.perspective_count >= MAX_FREE_USES) {
+                    isLimitReached = true;
+                }
+            }
+
+            if (isLimitReached) {
+                const currentUsage = userData.is_premium ? userData.daily_research_count : userData.perspective_count;
+                const maxLimit = userData.is_premium ? userData.daily_limit : MAX_FREE_USES;
+                
+                limitMessage.textContent = `You've reached your ${limitTypeText} limit (${currentUsage}/${maxLimit}). Please upgrade to continue analyzing.`;
+                limitModal.classList.remove('hidden');
+                return;
+            }
+
+            // --- Generation preparation ---
+            let targetTitle, targetType;
+            if (currentMode === 'literature') { targetTitle = bookTitleInput.value.trim(); targetType = "book or play"; } 
+            else if (currentMode === 'music') { targetTitle = musicTitleInput.value.trim(); targetType = "song or album"; } 
+            else { targetTitle = artTitleInput.value.trim(); targetType = "artwork"; }
+
+            if (!targetTitle) { 
+                errorMessage.textContent = "Please enter the title."; 
+                errorMessage.classList.remove('hidden'); 
+                return; 
+            }
+            errorMessage.classList.add('hidden');
+
+            const lens = perspectiveTopic.value;
+            generateBtn.disabled = true;
+            generateBtn.textContent = "Analyzing...";
+            loadingIndicator.classList.remove('hidden');
+            perspectiveOutput.innerHTML = '<p class="text-slate-500 italic">Contacting the Cosmos...</p>';
+            savePerspectiveBtn.classList.add('hidden'); 
+            readPerspectiveBtn.classList.add('hidden');
+
+            const finalPrompt = `
+                Role: You are 'The Universal Perspective Engine.' 
+                Task: Write a deep, creative analysis of the ${targetType} "${targetTitle}" through a "${lens}" lens.
+                Tone: Clear, simple, and engaging. No complex jargon.
+                Length: 3-4 paragraphs.
+            `;
+            
+            const geminiApiKey = "AIzaSyAau4gGyPWO4Dm3LVUQorkMs54VIZKckJ0"; 
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+
+            try {
+                const response = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: finalPrompt }] }]
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error?.message || "AI API Error " + response.status);
+                }
+
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    perspectiveOutput.textContent = text;
+                    currentAnalysis = { title: targetTitle, type: targetType, lens: lens, text: text };
+                    savePerspectiveBtn.classList.remove('hidden');
+                    readPerspectiveBtn.classList.remove('hidden');
+                    
+                    await incrementUsage();
+
+                } else {
+                    throw new Error("AI returned empty text.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                perspectiveOutput.innerHTML = `<p class="text-red-400 font-bold">Error: ${error.message}</p>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = "Generate Unique Perspective";
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+
+        // 3. Event Listeners for Authentication
+        authForm.addEventListener('submit', handleEmailPasswordAuth);
+        toggleAuthModeBtn.addEventListener('click', toggleAuthMode);
+        googleAuthBtn.addEventListener('click', handleGoogleAuth);
+        
+        // 4. Drawer & Navigation Listeners
+        profileBtn.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+        appContainer.addEventListener('click', () => { if (document.body.classList.contains('drawer-open')) closeDrawer(); });
+        drawerLogoutBtn.addEventListener('click', () => {
+             signOut(auth).then(() => console.log("User signed out.")).catch(console.error);
+        });
+
+        document.getElementById('btn-show-saved').addEventListener('click', () => {
+            closeDrawer();
+            showView('view-saved');
+        });
+        document.getElementById('back-to-app-saved').addEventListener('click', () => showView('view-analysis'));
+        
+        // Settings Navigation
+        btnShowSettings.addEventListener('click', () => {
+            closeDrawer();
+            showView('view-settings');
+        });
+        backToAppSettings.addEventListener('click', () => showView('view-analysis'));
+
+        // Help Navigation
+        btnShowHelp.addEventListener('click', () => {
+            closeDrawer();
+            showView('view-help');
+        });
+        backToAppHelp.addEventListener('click', () => showView('view-analysis'));
+
+        navPremiumBtn.onclick = () => showView('view-premium');
+        btnShowPremiumDrawer.onclick = () => { closeDrawer(); showView('view-premium'); };
+        backToAppBtn.onclick = () => showView('view-analysis');
+
+        // 5. Limit Modal Listeners
+        upgradeRedirectBtn.onclick = () => { limitModal.classList.add('hidden'); showView('view-premium'); };
+        closeLimitModalBtn.onclick = () => limitModal.classList.add('hidden');
+        limitModalBackdrop.onclick = () => limitModal.classList.add('hidden');
+
+
+        // --- Saved Analysis Logic ---
+
+        savePerspectiveBtn.addEventListener('click', async () => {
+            if (!currentUser || !currentAnalysis) return;
+            const btnOriginalText = savePerspectiveBtn.innerHTML;
+            savePerspectiveBtn.disabled = true;
+            savePerspectiveBtn.innerHTML = `<span class="animate-pulse">Saving...</span>`;
+
+            const analysisToSave = {
+                ...currentAnalysis,
+                media: currentMedia || {}, 
+                createdAt: serverTimestamp(),
+                userId: currentUser.uid,
+                isPremium: userData.is_premium 
+            };
+            
+            const privateCollectionRef = collection(db, `artifacts/${appId}/users/${currentUser.uid}/saved_analyses`);
+
+            try {
+                await addDoc(privateCollectionRef, analysisToSave);
+                savePerspectiveBtn.innerHTML = `<span class="text-green-400">Saved!</span>`;
+                setTimeout(() => {
+                    savePerspectiveBtn.innerHTML = btnOriginalText;
+                    savePerspectiveBtn.disabled = false;
+                }, 2000);
+            } catch (e) {
+                console.error("Save Error (Firestore): ", e);
+                savePerspectiveBtn.innerHTML = `<span class="text-red-400">Error</span>`;
+                savePerspectiveBtn.disabled = false;
+            }
+        });
+
+        // Saved List Realtime Listener
+        const savedList = document.getElementById('saved-list');
+        document.getElementById('btn-show-saved').addEventListener('click', () => {
+            closeDrawer();
+            showView('view-saved');
+            if (!currentUser) {
+                savedList.innerHTML = '<div class="col-span-full text-center text-slate-500 italic">Please log in to view saved analyses.</div>';
+                return;
+            }
+            
+            savedList.innerHTML = '<div class="col-span-full text-center text-slate-500 py-12">Loading your cosmic collection...</div>';
+            
+            const q = query(collection(db, `artifacts/${appId}/users/${currentUser.uid}/saved_analyses`));
+            
+            // Listen for real-time updates
+            onSnapshot(q, (snapshot) => {
+                savedList.innerHTML = '';
+                if (snapshot.empty) {
+                    savedList.innerHTML = '<div class="col-span-full text-center text-slate-500 italic">No saved perspectives yet.</div>';
+                    return;
+                }
+                
+                const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                
+                data.forEach(data => renderSavedCard(data));
+            }, (error) => {
+                console.error("Error listening to saved analyses:", error);
+                savedList.innerHTML = '<div class="col-span-full text-center text-red-500 py-12">Error loading data.</div>';
+            });
+        });
+
+        function renderSavedCard(data) {
+            const date = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
+            const card = document.createElement('div');
+            card.className = 'saved-card perspective-card p-5 rounded-xl flex flex-col gap-3 relative overflow-hidden';
+            card.innerHTML = `
+                <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-950/50 px-2 py-1 rounded">${data.lens}</span>
+                        <h3 class="text-lg font-bold text-white mt-2 line-clamp-1">${data.title}</h3>
+                        <p class="text-xs text-slate-500 capitalize">${data.type} • ${date}</p>
+                    </div>
+                </div>
+                <p class="text-sm text-slate-300 line-clamp-3 leading-relaxed">${data.text}</p>
+                <div class="mt-2 pt-2 border-t border-slate-800/50 flex items-center justify-between">
+                    <span class="text-xs text-slate-500 italic">Read full analysis...</span>
+                    ${data.media?.image ? '<svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>' : ''}
+                </div>
+            `;
+            // Pass the document ID to the modal when clicked
+            card.addEventListener('click', () => openSavedAnalysisModal(data, data.id));
+            savedList.prepend(card);
+        }
+
+        async function deleteAnalysis(docId) {
+            if (!currentUser) return;
+
+            // Using custom modal instead of window.confirm
+            const userConfirmed = await new Promise(resolve => {
+                const modalHtml = `
+                    <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm z-0" onclick="document.getElementById('confirm-modal').remove(); resolve(false);"></div>
+                        <div class="perspective-card w-full max-w-sm p-6 rounded-xl relative z-10 text-center">
+                            <h3 class="text-xl font-bold text-white mb-4">Confirm Deletion</h3>
+                            <p class="text-slate-300 mb-6">Are you sure you want to permanently delete this analysis? This action cannot be undone.</p>
+                            <div class="flex gap-4 justify-center">
+                                <button onclick="document.getElementById('confirm-modal').remove(); resolve(true);" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">Yes, Delete</button>
+                                <button onclick="document.getElementById('confirm-modal').remove(); resolve(false);" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            });
+
+            if (!userConfirmed) return;
+
+            closeModal();
+            
+            const docRef = doc(db, `artifacts/${appId}/users/${currentUser.uid}/saved_analyses`, docId);
+            try {
+                await deleteDoc(docRef);
+                console.log("Analysis deleted successfully:", docId);
+            } catch (e) {
+                console.error("Error deleting analysis:", e);
+                // In a production app, we would show a toast/notification here.
+            }
+        }
+
+        deleteModalBtn.addEventListener('click', () => {
+            const docId = deleteModalBtn.getAttribute('data-id');
+            if (docId) {
+                deleteAnalysis(docId);
+            }
+        });
+
+        function openSavedAnalysisModal(data, docId) {
+            window.speechSynthesis.cancel();
+            document.getElementById('modal-backdrop').onclick = closeModal;
+            
+            modalLens.textContent = data.lens;
+            modalTitle.textContent = data.title;
+            modalDate.textContent = data.createdAt?.toDate ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
+            modalText.textContent = data.text;
+            
+            deleteModalBtn.setAttribute('data-id', docId); // Set ID for deletion
+
+            if (data.media && data.media.title) {
+                modalMediaContainer.classList.remove('hidden');
+                document.getElementById('modal-media-title').textContent = data.media.title;
+                document.getElementById('modal-media-subtitle').textContent = data.media.subtitle;
+                document.getElementById('modal-media-cover').src = data.media.image || 'https://placehold.co/100x150?text=No+Cover';
+                document.getElementById('modal-media-link').href = data.media.link || '#';
+                document.getElementById('modal-media-link-text').textContent = data.media.linkText || 'View Resource';
+            } else {
+                modalMediaContainer.classList.add('hidden');
+            }
+
+            document.getElementById('view-saved-detail-modal').classList.remove('hidden');
+        }
+
+
+        // --- TTS & UI INIT ---
+        function getSoftVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            const preferred = ["Microsoft Zira", "Google US English", "Samantha", "Victoria"];
+            for (let name of preferred) {
+                const found = voices.find(v => v.name.includes(name));
+                if (found) return found;
+            }
+            return voices.find(v => v.name.includes("Female")) || voices[0];
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {};
+        }
+
+        function speakText(text, buttonElement, iconElement, textElement = null) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const isSpeaking = currentUtterance && currentUtterance.activeButton === buttonElement;
+
+                if (isSpeaking) {
+                    currentUtterance = null;
+                    iconElement.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>`;
+                    if (textElement) textElement.textContent = "Read Aloud";
+                    buttonElement.classList.remove('active');
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                const selectedVoice = getSoftVoice();
+                if (selectedVoice) utterance.voice = selectedVoice;
+                utterance.rate = 0.9;                 
+                utterance.pitch = 1.1; 
+
+                utterance.activeButton = buttonElement;
+                currentUtterance = utterance;
+
+                iconElement.innerHTML = `<rect x="6" y="6" width="12" height="12" fill="currentColor" />`;
+                if (textElement) textElement.textContent = "Stop";
+                buttonElement.classList.add('active');
+
+                utterance.onend = () => {
+                    iconElement.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>`;
+                    if (textElement) textElement.textContent = "Read Aloud";
+                    buttonElement.classList.remove('active');
+                    currentUtterance = null;
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error("Text-to-speech is not supported in this browser.");
+            }
+        }
+
+        readPerspectiveBtn.addEventListener('click', () => {
+            if (currentAnalysis && currentAnalysis.text) {
+                speakText(currentAnalysis.text, readPerspectiveBtn, readIcon, readText);
+            }
+        });
+
+        readModalBtn.addEventListener('click', () => {
+            const text = modalText.textContent;
+            if (text) {
+                speakText(text, readModalBtn, readModalBtnSvg);
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('view-saved-detail-modal').classList.add('hidden');
+            window.speechSynthesis.cancel(); 
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+        const scientists = [{name:"Albert Einstein",text:"Imagination is more important than knowledge.",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Albert_Einstein_Head.jpg/450px-Albert_Einstein_Head.jpg"},{name:"Marie Curie",text:"Nothing in life is to be feared, it is only to be understood.",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/440px-Marie_Curie_c._1920s.jpg"},{name:"Carl Sagan",text:"Somewhere, something incredible is waiting to be known.",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Carl_Sagan_Planetary_Society.JPG/440px-Carl_Sagan_Planetary_Society.JPG"}];
+        const quoteContainer = document.getElementById('scientist-quote-container');
+        const rs = scientists[Math.floor(Math.random()*scientists.length)];
+        quoteContainer.innerHTML=`<div class="quote-card perspective-card p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 animate-fade-in"><img src="${rs.image}" class="w-24 h-24 rounded-full object-cover border-2 border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)] flex-shrink-0"><div class="text-center md:text-left"><p class="text-lg md:text-xl text-slate-200 italic">"${rs.text}"</p><p class="text-cyan-400 font-bold mt-2">— ${rs.name}</p></div></div>`;
+
+        const modeLiteratureBtn = document.getElementById('mode-literature');
+        const modeMusicBtn = document.getElementById('mode-music');
+        const modeArtBtn = document.getElementById('mode-art');
+        const tabSlider = document.getElementById('tab-slider');
+        
+        const perspectives = {
+            literature: ["Marxist Critique", "Psychoanalytic Lens", "Feminist Deconstruction", "Semiotics", "Queer Theory", "Unintended Message", "Media Influence"],
+            music: ["Soundscape Analysis", "Marxist Critique", "Psychoanalytic Lens", "Feminist Deconstruction", "Semiotics", "Queer Theory", "Artist's Subtext"],
+            art: ["Composition & Color", "Iconography", "Provenance", "Marxist Critique", "Psychoanalytic Lens", "The Gaze", "Modern Influence"]
+        };
+
+        function populatePerspectives(mode) {
+            perspectiveTopic.innerHTML = '';
+            perspectives[mode].forEach(p => { const o = document.createElement('option'); o.value=p; o.textContent=p; perspectiveTopic.appendChild(o); });
+        }
+        populatePerspectives('literature');
+
+        function updateSlider(btn) { tabSlider.style.width=`${btn.offsetWidth}px`; tabSlider.style.left=`${btn.offsetLeft}px`; }
+        window.addEventListener('load', ()=>updateSlider(modeLiteratureBtn));
+        window.addEventListener('resize', ()=>updateSlider(currentMode==='literature'?modeLiteratureBtn:currentMode==='music'?modeMusicBtn:modeArtBtn));
+
+        let currentMode = 'literature';
+        function switchMode(mode) {
+            currentMode = mode;
+            currentMedia = null;
+            document.getElementById('selected-media-container').classList.add('hidden');
+            
+            populatePerspectives(mode);
+            [modeLiteratureBtn, modeMusicBtn, modeArtBtn].forEach(b=>b.classList.replace('text-slate-900','text-slate-400'));
+            [litGroup, musGroup, artGroup].forEach(g=>g.classList.add('hidden'));
+
+            let btn, grp;
+            if(mode==='literature'){ btn=modeLiteratureBtn; grp=litGroup; }
+            else if(mode==='music'){ btn=modeMusicBtn; grp=musGroup; }
+            else { btn=modeArtBtn; grp=artGroup; }
+
+            grp.classList.remove('hidden');
+            btn.classList.replace('text-slate-400','text-slate-900');
+            updateSlider(btn);
+        }
+        modeLiteratureBtn.onclick = ()=>switchMode('literature');
+        modeMusicBtn.onclick = ()=>switchMode('music');
+        modeArtBtn.onclick = ()=>switchMode('art');
+
+
+        // --- Autocomplete and Media Display Logic (Fixed to use correct inputs) ---
+        function renderSelectedMedia(type, item) {
+            const selectedMediaContainer = document.getElementById('selected-media-container');
+            const mediaTitle = document.getElementById('media-title');
+            const mediaSubtitle = document.getElementById('media-subtitle');
+            const mediaCover = document.getElementById('media-cover');
+            const mediaLink = document.getElementById('media-link');
+            const mediaLinkText = document.getElementById('media-link-text');
+
+            selectedMediaContainer.classList.remove('hidden');
+            let mediaData = {};
+
+            if (type === 'literature') {
+                const title = item.volumeInfo.title || 'Unknown Title';
+                const authors = item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown Author';
+                const thumb = item.volumeInfo.imageLinks?.thumbnail || item.volumeInfo.imageLinks?.smallThumbnail || 'https://placehold.co/100x150?text=No+Cover';
+                const secureThumb = thumb.replace('http:', 'https:'); 
+                const link = item.volumeInfo.previewLink || item.volumeInfo.infoLink || '#';
+                                
+                mediaTitle.textContent = title;
+                mediaSubtitle.textContent = authors;
+                mediaCover.src = secureThumb;
+                mediaLink.href = link;
+                mediaLinkText.textContent = "View on Google Books";
+                mediaData = { title, subtitle: authors, image: secureThumb, link, linkText: "View on Google Books", type };
+            } else if (type === 'music') {
+                const title = item.trackName;
+                const artist = item.artistName;
+                const album = item.collectionName;
+                const artwork = item.artworkUrl100 || 'https://placehold.co/100x100?text=No+Art';
+                const highResArtwork = artwork.replace('100x100', '300x300');
+                const link = item.trackViewUrl || item.collectionViewUrl || '#';
+
+                mediaTitle.textContent = title;
+                mediaSubtitle.textContent = `${artist} - ${album}`;
+                mediaCover.src = highResArtwork;
+                mediaLink.href = link;
+                mediaLinkText.textContent = "Listen on Apple Music";
+                mediaData = { title, subtitle: `${artist} - ${album}`, image: highResArtwork, link, linkText: "Listen on Apple Music", type };
+            } else if (type === 'art') {
+                const title = item.title;
+                const artist = item.artist_display || "Unknown Artist";
+                const imageId = item.image_id;
+                const imageUrl = imageId ? `https://www.artic.edu/iiif/2/${imageId}/full/400,/0/default.jpg` : 'https://placehold.co/300x300?text=No+Image';
+                const link = `https://www.artic.edu/artworks/${item.id}`;
+
+                mediaTitle.textContent = title;
+                mediaSubtitle.textContent = artist;
+                mediaCover.src = imageUrl;
+                mediaLink.href = link;
+                mediaLinkText.textContent = "View at Art Institute of Chicago";
+                mediaData = { title, subtitle: artist, image: imageUrl, link, linkText: "View at Art Institute", type };
+            }
+            currentMedia = mediaData;
+        }
+
+        let debounceTimer;
+        
+        const setupAutocomplete = (inputElement, suggestionElement, mediaType, fetchFunction, formatDisplay, formatValue) => {
+            inputElement.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                clearTimeout(debounceTimer);
+                if (query.length < 3) { suggestionElement.classList.add('hidden'); return; }
+                debounceTimer = setTimeout(async () => {
+                    try {
+                        const data = await fetchFunction(query);
+                        suggestionElement.innerHTML = '';
+                        if (data?.length > 0) {
+                            suggestionElement.classList.remove('hidden');
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.innerHTML = formatDisplay(item);
+                                div.addEventListener('click', () => {
+                                    inputElement.value = formatValue(item);
+                                    suggestionElement.classList.add('hidden');
+                                    renderSelectedMedia(mediaType, item);
+                                });
+                                suggestionElement.appendChild(div);
+                            });
+                        } else { suggestionElement.classList.add('hidden'); }
+                    } catch (e) { console.error(e); suggestionElement.classList.add('hidden'); }
+                }, 300);
+            });
+        };
+
+        setupAutocomplete(
+            bookTitleInput, bookSuggestions, 'literature',
+            async (q) => (await (await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=5&printType=books`)).json()).items,
+            (book) => `<span class="font-semibold text-cyan-200">${book.volumeInfo.title}</span> <span class="text-sm text-slate-400">by ${book.volumeInfo.authors?.[0] || ''}</span>`,
+            (book) => `${book.volumeInfo.title} by ${book.volumeInfo.authors?.[0] || ''}`
+        );
+
+        setupAutocomplete(
+            musicTitleInput, musicSuggestions, 'music',
+            async (q) => (await (await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=song&limit=5`)).json()).results,
+            (track) => `<span class="font-semibold text-cyan-200">${track.trackName}</span> <span class="text-sm text-slate-400">by ${track.artistName}</span>`,
+            (track) => `${track.trackName} by ${track.artistName}`
+        );
+        
+        setupAutocomplete(
+            artTitleInput, artSuggestions, 'art',
+            async (q) => (await (await fetch(`https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(q)}&limit=5&fields=id,title,artist_display,image_id`)).json()).data,
+            (art) => `<span class="font-semibold text-cyan-200">${art.title}</span> <span class="text-sm text-slate-400">by ${art.artist_display}</span>`,
+            (art) => `${art.title} by ${art.artist_display}`
+        );
+
+        document.addEventListener('click', (e) => {
+            const isOutsideLit = litGroup && !litGroup.contains(e.target);
+            const isOutsideMus = musGroup && !musGroup.contains(e.target);
+            const isOutsideArt = artGroup && !artGroup.contains(e.target);
+
+            if (isOutsideLit) bookSuggestions.classList.add('hidden');
+            if (isOutsideMus) musicSuggestions.classList.add('hidden');
+            if (isOutsideArt) artSuggestions.classList.add('hidden');
+        });
+
+        function createStar() {
+            const s=document.createElement('div'); s.className='shooting-star';
+            s.style.left=`${(Math.random()*0.7+0.3)*window.innerWidth}px`;
+            s.style.top=`${Math.random()*(window.innerHeight*0.4)-50}px`;
+            s.style.animationDuration=`${2+Math.random()*2}s`;
+            document.body.appendChild(s); setTimeout(()=>s.remove(), 4000);
+        }
+        setInterval(()=>createStar(), 2500);
+
+    </script>
+</body>
+</html>
