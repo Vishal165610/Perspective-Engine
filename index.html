@@ -543,7 +543,7 @@
                             <button onclick="handlePayment('Yearly', 1599, 365, 10)" class="w-full bg-gradient-to-r from-cyan-600 to-blue-700 text-white font-bold py-4 rounded-xl hover:from-cyan-500 hover:to-blue-600 transition duration-150 shadow-lg">Choose Yearly</button>
                         </div>
                     </div>
-                    <p class="text-center text-slate-500 text-sm mt-8">Secure payments powered by . Cancel anytime.</p>
+                    <p class="text-center text-slate-500 text-sm mt-8">Secure payments powered by Razorpay. Cancel anytime.</p>
                 </div>
 
                 <!-- =================== VIEW: SETTINGS (Includes Transaction History) =================== -->
@@ -708,7 +708,7 @@
         const PLAN_DURATIONS = { Monthly: 30, Yearly: 365 }; // Days
         
         // <<=== IMPORTANT: REPLACE THIS WITH YOUR LIVE RAZORPAY KEY ID ===>>
-        const RAZORPAY_KEY_ID = "rzp_test_KStJ8dZJH8Z85l"; 
+        const RAZORPAY_KEY_ID = " rzp_live_RiW7lrvvBtiV1e"; 
 
         // --- Global State ---
         let currentUser = null;
@@ -1085,7 +1085,7 @@
             
             // --- 2. Razorpay Options ---
             const options = {
-                key: "DpRFQngI1BrkjijH7O0ixwNZ", // <<=== YOUR KEY MUST BE HERE
+                key: DpRFQngI1BrkjijH7O0ixwNZ, // <<=== YOUR KEY MUST BE HERE
                 amount: amt * 100, // Amount is in currency subunits (paise)
                 currency: "INR",
                 name: "Universal Perspective Engine",
@@ -1311,7 +1311,7 @@
                 Length: 3-4 paragraphs.
             `;
             
-            const geminiApiKey = "AIzaSyAau4gGyPWO4Dm3LVUQorkMs54VIZKckJ0"; 
+            const geminiApiKey = "AIzaSyAPb4iEgU-w7PSrRKWB8xiUNEOSJKR8WVU"; 
             const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
 
             try {
